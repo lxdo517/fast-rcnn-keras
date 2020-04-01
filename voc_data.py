@@ -44,7 +44,7 @@ class VocData(object):
             labels, regions_target, bbox_targets, bbox_inside_weights, bbox_outside_weights = \
                 self._process_gt_bboxes(image_data, gt_box_data)
             yield [image_data, labels, regions_target, bbox_targets, bbox_inside_weights,
-                              bbox_outside_weights], np.zeros(batch_size)
+                   bbox_outside_weights], np.zeros(batch_size)
 
     def _parse_annotation(self, annotation):
         """
@@ -70,12 +70,17 @@ class VocData(object):
         # 将gt_boxes映射到resize后的图像上
         gt_boxes = np.vstack((gt_boxes[:, 0] * scale_w, gt_boxes[:, 1] * scale_h, gt_boxes[:, 2] * scale_w,
                               gt_boxes[:, 3] * scale_h, gt_boxes[:, 4])).transpose()
-        if flip:
+        if flip < .5:
             # 修正boxes
             gt_boxes[:, [0, 2]] = cfg.DEFAUTL_IMAGE_SIZE - gt_boxes[:, [2, 0]]
         return img_data, gt_boxes
 
     def _process_gt_bboxes(self, img_data, gt_boxes):
+        total_labels = []
+        total_regions_target = []
+        total_bbox_targets = []
+        total_bbox_inside_weights = []
+        total_bbox_outside_weights = []
         # 图像缩小的尺寸
         for idx, img in enumerate(img_data):
             # 可能参数需要调整 很多图像采样不到满足设置要求的正负样本数
@@ -95,7 +100,18 @@ class VocData(object):
             # 得到训练用的标签数据
             labels, regions_target, bbox_targets, bbox_inside_weights, bbox_outside_weights = \
                 self._get_labels(regions, gt_boxes[idx])
-            return labels, regions_target, bbox_targets, bbox_inside_weights, bbox_outside_weights
+            total_labels.append(labels)
+            total_regions_target.append(regions_target)
+            total_bbox_targets.append(bbox_targets)
+            total_bbox_inside_weights.append(bbox_inside_weights)
+            total_bbox_outside_weights.append(bbox_outside_weights)
+            total_labels = np.concatenate(total_labels, axis=0)
+            total_regions_target = np.concatenate(total_regions_target, axis=0)
+            total_bbox_targets = np.concatenate(total_bbox_targets, axis=0)
+            total_bbox_inside_weights = np.concatenate(total_bbox_inside_weights, axis=0)
+            total_bbox_outside_weights = np.concatenate(total_bbox_outside_weights, axis=0)
+        return total_labels, total_regions_target, total_bbox_targets, total_bbox_inside_weights, \
+               total_bbox_outside_weights
 
     def _get_labels(self, regions, gt_boxes):
         """
@@ -143,6 +159,7 @@ class VocData(object):
         # 将regions转成回归值 tx ty tw th
         bbox_target_data = self._transform_regions(regions_target, gt_boxes[gt_assignment[keep_inds], :4])
         bbox_targets, bbox_inside_weights = self._get_bbox_regression_labels(bbox_target_data, labels)
+        # 给regions添加上batch 维度信息
         regions_target = np.vstack((np.zeros(regions_target.shape[0], ), regions_target[:, 0], regions_target[:, 1],
                                     regions_target[:, 2], regions_target[:, 3])).transpose()
 
@@ -182,9 +199,9 @@ class VocData(object):
 # voc_data = VocData('./data/2007_train.txt', voc_annotation)
 #
 # g = voc_data.data_generator_wrapper(1)
-
-# for i in range(100):
+#
+# for i in range(10):
 #     image_data, labels, regions_target, bbox_targets, bbox_inside_weights, bbox_outside_weights = next(g)[0]
-#     # (1, 576, 576, 3) (99,) (99, 5) (99, 80) (99, 80)
+#     # (1, 576, 576, 3) (1, 128) (1, 128, 5) (1, 128, 80) (1, 128, 80) (1, 128, 80)
 #     print(image_data.shape, labels.shape, regions_target.shape, bbox_targets.shape, bbox_inside_weights.shape,
 #           bbox_outside_weights.shape)

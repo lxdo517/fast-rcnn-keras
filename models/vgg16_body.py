@@ -10,8 +10,8 @@ def get_model_body(trainable=False):
         for layer in vgg16_model.layers:
             # 让其不可训练
             layer.trainable = False
-    model = Model(inputs=vgg16_model.input, outputs=vgg16_model.get_layer('block5_conv3').output)
-    # model = Model(inputs=vgg16_model.input, outputs=vgg16_model.output)
+    # model = Model(inputs=vgg16_model.input, outputs=vgg16_model.get_layer('block5_conv3').output)
+    model = Model(inputs=vgg16_model.input, outputs=vgg16_model.output)
     return model
 
 #
