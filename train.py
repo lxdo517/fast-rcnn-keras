@@ -35,4 +35,4 @@ if __name__ == '__main__':
                         epochs=50,
                         initial_epoch=0,
                         callbacks=[logging, checkpoint])
-    model.save_weights(log_dir + 'trained_weights_stage_1.h5')
+    model.save(log_dir + 'fast_rcnn_model.h5')

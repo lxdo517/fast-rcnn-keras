@@ -1,3 +1,4 @@
+import tensorflow as tf
 from tensorflow.keras import Model
 from models.vgg16_body import get_model_body
 from tensorflow.keras.layers import Dense, Flatten, Dropout, Lambda
@@ -19,10 +20,10 @@ class FastRCNN(Model):
         self._dropout2 = Dropout(keep_prob)
         # predict k + 1 categories  k个类别加上背景
         # (None, 128, 21)
-        self._fc_cls = Dense(num_classes + 1)
+        self._fc_cls = Dense(num_classes + 1, name='cls_output')
         # predict 4 * k 个值 每个类4个坐标回归值
         # (None, 128, 80)
-        self._fc_bbox = Dense(num_classes * 4)
+        self._fc_bbox = Dense(num_classes * 4, name='bbox_output')
         # 计算损失
         self._loss = Lambda(loss, name='fast_loss')
 
