@@ -2,7 +2,9 @@ import tensorflow as tf
 import numpy as np
 import config as cfg
 
-
+"""
+这里的实现和caffe源码实现是一样的 这里做个记录理解源码是怎么写的
+"""
 def roi_pool(feature_maps, rois, im_dims=(cfg.DEFAUTL_IMAGE_SIZE, cfg.DEFAUTL_IMAGE_SIZE)):
     # 将tensor数据转成numpy计算
     pooled_features = tf.py_function(_roi_pool_py, [feature_maps, rois, im_dims], [tf.float32])
