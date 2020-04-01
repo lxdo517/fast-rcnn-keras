@@ -93,6 +93,7 @@ def main():
     model = load_model(model_path)
 
     test_model = Model(model.input, [model.get_layer('cls_output').output, model.get_layer('bbox_output').output])
+    test_model.load_weights(model_path, by_name=True, skip_mismatch=True)
     # 获取输入信息
     inputs = get_inputs()
     # shape (1, 128, 21) shape (1, 128, 80)
