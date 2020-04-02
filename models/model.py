@@ -1,9 +1,8 @@
-import tensorflow as tf
 from tensorflow.keras import Model
 from models.vgg16_body import get_model_body
 from tensorflow.keras.layers import Dense, Flatten, Dropout, Lambda
-from roi.roi_proposal import roi_proposal
 from fast_loss import fast_loss as loss
+from models.roi_pooling_layer import RoipoolingLayer
 
 
 class FastRCNN(Model):
@@ -11,8 +10,8 @@ class FastRCNN(Model):
         super(FastRCNN, self).__init__()
         self._num_classes = num_classes
         self._vgg16 = get_model_body()
-        # roi pooling 不参与反向传播
-        self._roi_pooling = Lambda(roi_proposal)
+        # roi pooling
+        self._roi_pooling = RoipoolingLayer()
         self._flatten = Flatten()
         self._fc1 = Dense(4096, activation='tanh')
         self._dropout1 = Dropout(keep_prob)
@@ -34,7 +33,7 @@ class FastRCNN(Model):
         x = self._vgg16(image_data)
         # seletvie_search 貌似有点问题参数可能不对 不能够采样128个满足条件样本
         # (None, 128, 7, 7, 512)
-        x = self._roi_pooling([x, regions_target])
+        x = self._roi_pooling(x, regions_target)
         x = self._flatten(x)
         x = self._fc1(x)
         x = self._dropout1(x)

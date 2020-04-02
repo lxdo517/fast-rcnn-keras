@@ -25,7 +25,8 @@ def roi_pool_tf(feature_maps, rois, im_dims=(cfg.DEFAUTL_IMAGE_SIZE, cfg.DEFAUTL
     crop_size = tf.constant([14, 14])
 
     # ROI pool
-    pooled_features = tf.image.crop_and_resize(image=feature_maps, boxes=boxes[0, ...], box_ind=box_ind[0, ...], crop_size=crop_size)
+    pooled_features = tf.image.crop_and_resize(image=feature_maps, boxes=boxes[0, ...], box_ind=box_ind[0, ...],
+                                               crop_size=crop_size)
     # Max pool to (7x7)
     pooled_features = tf.nn.max_pool(pooled_features, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
     return pooled_features
