@@ -16,7 +16,6 @@ def fast_loss(args):
     diff_l1 = smooth_l1(diff, 1.0)
     # 边框回归损失
     roi_bbox_loss = tf.reduce_mean(tf.reduce_sum(tf.multiply(bbox_outside_weights, diff_l1), axis=1))
-    roi_bbox_loss = cfg.TRAIN_RPN_BBOX_LAMBDA * roi_bbox_loss
     fast_loss = cls_loss + roi_bbox_loss
     return fast_loss
 
