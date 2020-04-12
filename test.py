@@ -76,9 +76,9 @@ def get_inputs(img_path):
     # (1, 576, 576, 3) (1, 128) (1, 128, 5) (1, 128, 80) (1, 128, 80) (1, 128, 80)
     # 测试是不需要 labels bbox_targets, bbox_inside_weights, bbox_outside_weights 所以全部取0
     imgs, rects = get_proposal(img)
-    imgs = [np.newaxis, ...]
+    imgs = imgs[np.newaxis, ...]
     m, n = rects.shape
-    rects = [np.newaxis, ...]
+    rects = rects[np.newaxis, ...]
     return [imgs, np.zeros((1, m)), rects, np.zeros((1, m, 80)), np.zeros((1, m, 80)), np.zeros((1, m, 80))]
 
 
